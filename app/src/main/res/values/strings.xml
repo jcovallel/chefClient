@@ -1,6 +1,12 @@
 <resources>
-    <string name="app_name">chefClient</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="app_name">Kitchen Works</string>
+    <string name="title_home">Tips Nutricionales</string>
+    <string name="title_dashboard">Reservaciones</string>
+    <string name="title_menu">Menú</string>
+    <string name="title_notifications">Comentarios</string>
+    <string name="nav_tips">TIPS</string>
+    <string name="nav_reservas">RESERVAS</string>
+    <string name="nav_menu">MENÚ</string>
+    <string name="nav_comenta">COMENTARIOS</string>
+    <string name="server">http://35.188.127.60:8080/</string>
 </resources>
