@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try{
-                    URL obj = new URL ( getString(R.string.server)+"chef/getusers/");
+                    URL obj = new URL ( getString(R.string.server)+"chef/getusersmobile/");
                     HttpURLConnection con = (HttpURLConnection) obj.openConnection();
                     con.setRequestMethod("GET");
                     int responseCode = con.getResponseCode();
@@ -89,9 +89,7 @@ public class MainActivity extends AppCompatActivity {
             arr = new JSONArray(response.toString());
             for(int i = 0; i < arr.length(); i++){
                 String str = arr.getJSONObject(i).getString("nombre");
-                if(! str.equals("Administrador")){
-                    list.add(str);
-                }
+                list.add(str);
             }
         } catch (JSONException e) {
             e.printStackTrace();

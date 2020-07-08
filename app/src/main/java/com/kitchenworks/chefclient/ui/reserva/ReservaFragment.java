@@ -24,6 +24,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.asynclayoutinflater.view.AsyncLayoutInflater;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -49,6 +51,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class ReservaFragment extends Fragment {
 
@@ -62,13 +65,24 @@ public class ReservaFragment extends Fragment {
     private ImageView imageView;
     private ScrollView scrollView;
 
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
 
         Second_activity activity = (Second_activity) getActivity();
         empresaget = activity.getEmpresa().replaceAll(" ", "%20");
         empresasend = activity.getEmpresa();
 
         View root = inflater.inflate(R.layout.fragment_reserva, container, false);
+
+        /*AsyncLayoutInflater asyncLayoutInflater = new AsyncLayoutInflater(getContext());
+        asyncLayoutInflater.inflate(R.layout.fragment_reserva, container, new AsyncLayoutInflater.OnInflateFinishedListener() {
+            @Override
+            public void onInflateFinished(@NonNull View view, int resid, @Nullable ViewGroup parent) {
+                parent.addView(view);
+                onViewCreated(view, savedInstanceState);
+            }
+        });
+        return super.onCreateView(inflater, container, savedInstanceState);*/
+
         reservaViewModel = ViewModelProviders.of(this).get(ReservaViewModel.class);
 
         scrollView = root.findViewById(R.id.scrollView);
@@ -120,7 +134,22 @@ public class ReservaFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        final String [] Adias = list.toArray(new String[0]);
+
+        boolean nocturno = false;
+        final String dianumb = new SimpleDateFormat("u", Locale.getDefault()).format(new Date());
+        int horaint = Integer.parseInt(new SimpleDateFormat("k", Locale.getDefault()).format(new Date()));
+        int min = Integer.parseInt(new SimpleDateFormat("m", Locale.getDefault()).format(new Date()));
+        if(empresasend.equals("Albahaca") && dianumb.equals("5") && horaint<=19 && horaint>=18){
+            if(!(horaint==19 && min>45)){
+                nocturno=true;
+            }
+        }
+        final String [] Adias;
+        if(list.toArray(new String[0]).length==0 && nocturno){
+            Adias = new String[] {"Viernes"};
+        }else{
+            Adias = list.toArray(new String[0]);
+        }
 
         if(Adias.length>0){
             scrollView.setVisibility(View.VISIBLE);
@@ -154,7 +183,7 @@ public class ReservaFragment extends Fragment {
             hora=horaformat.format(dateobj);
 
             TextView politicatext = root.findViewById(R.id.politica);
-            String text = "Sus datos peronales han sido y están siendo tratados conforme" +
+            String text = "Sus datos personales han sido y están siendo tratados conforme" +
                     " con nuestra Política de Tratamiento de Datos Personales. Para mayor " +
                     "información podrá consultar nuestra política en la página web: Política " +
                     "de Privacidad";
@@ -184,8 +213,13 @@ public class ReservaFragment extends Fragment {
                     }
                 }
             });
-
-            String [] entrega = new String[] {"En sitio","A domicilio"};
+            String [] entrega;
+            if(empresasend.equals("Albahaca")){
+                entrega = new String[] {"En sitio"};
+            }else {
+                //entrega = new String[] {"En sitio","A domicilio"};
+                entrega = new String[] {"En sitio"};
+            }
 
             ArrayAdapter<String> adapter2 =
                     new ArrayAdapter<>(
@@ -217,78 +251,107 @@ public class ReservaFragment extends Fragment {
                 @Override
                 public void afterTextChanged(Editable s) {
                     String [] dias;
+                    if(empresasend.equals("Albahaca")){
+                        switch (dianumb){
+                            case "1":{
+                                dias = new String[] {"Lunes"};
+                            }break;
+                            case "2":{
+                                dias = new String[] {"Martes"};
+                            }break;
+                            case "3":{
+                                dias = new String[] {"Miércoles"};
+                            }break;
+                            case "4":{
+                                dias = new String[] {"Jueves"};
+                            }break;
+                            case "5":{
+                                dias = new String[] {"Viernes"};
+                            }break;
+                            default:{
+                                dias = new String[] {"not available"};
+                            }
+                        }
+                        ArrayAdapter<String> adapter =
+                                new ArrayAdapter<>(
+                                        getContext(),
+                                        R.layout.dropdown_menu_popup_item,
+                                        dias);
+                        editTextFilledExposedDropdown.setAdapter(adapter);
+                        diaContainer.setVisibility(View.VISIBLE);
+                    }else{
+                        if(s.toString().equals("Alterno")){
+                            Thread threadst;
+                            final StringBuffer response2 = new StringBuffer();
+                            threadst = new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try{
+                                        URL obj = new URL ( getString(R.string.server)+"chef/getdayslist/"+empresaget);
+                                        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+                                        con.setRequestMethod("GET");
+                                        int responseCode = con.getResponseCode();
+                                        if (responseCode == HttpURLConnection.HTTP_OK) { // success
+                                            BufferedReader in = new BufferedReader(new InputStreamReader(
+                                                    con.getInputStream()));
 
-                    if(s.toString().equals("Alterno")){
-                        Thread threadst;
-                        final StringBuffer response2 = new StringBuffer();
-                        threadst = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try{
-                                    URL obj = new URL ( getString(R.string.server)+"chef/getdayslist/"+empresaget);
-                                    HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-                                    con.setRequestMethod("GET");
-                                    int responseCode = con.getResponseCode();
-                                    if (responseCode == HttpURLConnection.HTTP_OK) { // success
-                                        BufferedReader in = new BufferedReader(new InputStreamReader(
-                                                con.getInputStream()));
-
-                                        String inputLine;
-                                        while ((inputLine = in.readLine()) != null) {
-                                            response2.append(inputLine);
+                                            String inputLine;
+                                            while ((inputLine = in.readLine()) != null) {
+                                                response2.append(inputLine);
+                                            }
+                                            in.close();
+                                        } else {
+                                            System.out.println("GET request not worked");
                                         }
-                                        in.close();
-                                    } else {
-                                        System.out.println("GET request not worked");
+                                    }catch (MalformedURLException e){
+                                        e.printStackTrace();
+                                    }catch (IOException e) {
+                                        e.printStackTrace();
                                     }
-                                }catch (MalformedURLException e){
-                                    e.printStackTrace();
-                                }catch (IOException e) {
-                                    e.printStackTrace();
                                 }
+                            });threadst.start();
+                            while(threadst.isAlive());
+                            JSONArray arr = null;
+                            List<String> list = new ArrayList<String>();
+                            try {
+                                arr = new JSONArray(response2.toString());
+                                for(int i = 0; i < arr.length(); i++){
+                                    String str = arr.getJSONObject(i).getString("dia");
+                                    list.add(str);
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-                        });threadst.start();
-                        while(threadst.isAlive());
-                        JSONArray arr = null;
-                        List<String> list = new ArrayList<String>();
-                        try {
-                            arr = new JSONArray(response2.toString());
-                            for(int i = 0; i < arr.length(); i++){
-                                String str = arr.getJSONObject(i).getString("dia");
-                                list.add(str);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        dias = list.toArray(new String[0]);
+                            dias = list.toArray(new String[0]);
 
-                        if(dias.length==0){
-                            new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
-                                    .setTitle("Lo Sentimos.")
-                                    .setMessage("No se encontro disponibilidad para el tipo de menú selecccionado, intente con otro tipo " +
-                                            "o intente mas tarde.")
-                                    .setPositiveButton("Ok", null)
-                                    .show();
-                            editTextFilledExposedDropdown4.setText(null);
+                            if(dias.length==0){
+                                new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
+                                        .setTitle("Lo Sentimos.")
+                                        .setMessage("No se encontro disponibilidad para el tipo de menú selecccionado, intente con otro tipo " +
+                                                "o intente mas tarde.")
+                                        .setPositiveButton("Ok", null)
+                                        .show();
+                                editTextFilledExposedDropdown4.setText(null);
+                            }else {
+                                ArrayAdapter<String> adapter =
+                                        new ArrayAdapter<>(
+                                                getContext(),
+                                                R.layout.dropdown_menu_popup_item,
+                                                dias);
+                                editTextFilledExposedDropdown.setAdapter(adapter);
+                                diaContainer.setVisibility(View.VISIBLE);
+                            }
+
                         }else {
-                            ArrayAdapter<String> adapter =
-                                    new ArrayAdapter<>(
-                                            getContext(),
-                                            R.layout.dropdown_menu_popup_item,
-                                            dias);
-                            editTextFilledExposedDropdown.setAdapter(adapter);
-                            diaContainer.setVisibility(View.VISIBLE);
-                        }
-
-                    }else {
-                        if(s.toString().equals("Del día")){
-                            ArrayAdapter<String> adapter =
-                                    new ArrayAdapter<>(
-                                            getContext(),
-                                            R.layout.dropdown_menu_popup_item,
-                                            Adias);
-                            editTextFilledExposedDropdown.setAdapter(adapter);
-                            diaContainer.setVisibility(View.VISIBLE);
+                            if(s.toString().equals("Del día")){
+                                ArrayAdapter<String> adapter =
+                                        new ArrayAdapter<>(
+                                                getContext(),
+                                                R.layout.dropdown_menu_popup_item,
+                                                Adias);
+                                editTextFilledExposedDropdown.setAdapter(adapter);
+                                diaContainer.setVisibility(View.VISIBLE);
+                            }
                         }
                     }
                 }
@@ -492,12 +555,16 @@ public class ReservaFragment extends Fragment {
                                                         os.flush();
 
                                                         if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                                                            new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
-                                                                    .setTitle("Lo Sentimos.")
-                                                                    .setMessage("Algo ocurrio al realiar la reserva, verifica tu conexion a internet " +
-                                                                            "o intentalo mas tarde.")
-                                                                    .setPositiveButton("Ok", null)
-                                                                    .show();
+                                                            ReservaFragment.this.getActivity().runOnUiThread(new Runnable() {
+                                                                public void run() {
+                                                                    new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
+                                                                            .setTitle("Lo Sentimos.")
+                                                                            .setMessage("Algo ocurrio al realizar la reserva, verifica tu conexion a internet " +
+                                                                                    "o intentalo mas tarde.")
+                                                                            .setPositiveButton("Ok", null)
+                                                                            .show();
+                                                                }
+                                                            });
                                                         }else{
                                                             Thread thread3 = new Thread(new Runnable() {
                                                                 @Override
@@ -563,12 +630,16 @@ public class ReservaFragment extends Fragment {
                                         }
 
                                     } else {
-                                        new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
-                                                .setTitle("Lo Sentimos.")
-                                                .setMessage("Algo ocurrio al realiar la reserva, verifica tu conexion a internet " +
-                                                        "o intentalo mas tarde.")
-                                                .setPositiveButton("Ok", null)
-                                                .show();
+                                        ReservaFragment.this.getActivity().runOnUiThread(new Runnable() {
+                                            public void run() {
+                                                new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
+                                                        .setTitle("Lo Sentimos.")
+                                                        .setMessage("Algo ocurrio al realizar la reserva, verifica tu conexion a internet " +
+                                                                "o intentalo mas tarde.")
+                                                        .setPositiveButton("Ok", null)
+                                                        .show();
+                                            }
+                                        });
                                     }
                                 }catch (MalformedURLException e){
                                     e.printStackTrace();
@@ -629,12 +700,16 @@ public class ReservaFragment extends Fragment {
                                     os.flush();
 
                                     if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                                        new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
-                                                .setTitle("Lo Sentimos.")
-                                                .setMessage("Algo ocurrio al realiar la reserva, verifica tu conexion a internet " +
-                                                        "o intentalo mas tarde.")
-                                                .setPositiveButton("Ok", null)
-                                                .show();
+                                        ReservaFragment.this.getActivity().runOnUiThread(new Runnable() {
+                                            public void run() {
+                                                new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
+                                                        .setTitle("Lo Sentimos.")
+                                                        .setMessage("Algo ocurrio al realizar la reserva, verifica tu conexion a internet " +
+                                                                "o intentalo mas tarde.")
+                                                        .setPositiveButton("Ok", null)
+                                                        .show();
+                                            }
+                                        });
                                     }else{
                                         ReservaFragment.this.getActivity().runOnUiThread(new Runnable() {
                                             public void run() {
@@ -663,8 +738,8 @@ public class ReservaFragment extends Fragment {
                 }
             });
         }else{
-           imageView.setVisibility(View.VISIBLE);
-           textView.setVisibility(View.VISIBLE);
+            imageView.setVisibility(View.VISIBLE);
+            textView.setVisibility(View.VISIBLE);
         }
         return root;
     }

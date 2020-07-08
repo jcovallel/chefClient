@@ -34,7 +34,6 @@ public class Second_activity extends AppCompatActivity {
         NavigationUI.setupWithNavController(navView, navController);
 
         navView.setTextSize(10);
-        navView.enableAnimation(false);
 
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.mipmap.sodexo_white);
