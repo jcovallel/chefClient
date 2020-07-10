@@ -8,5 +8,5 @@
     <string name="nav_reservas">RESERVAS</string>
     <string name="nav_menu">MENÚ</string>
     <string name="nav_comenta">COMENTARIOS</string>
-    <string name="server">http://35.188.100.206:8080/</string>
+    <string name="server">http://35.188.211.209:8080/</string>
 </resources>
