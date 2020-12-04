@@ -120,23 +120,6 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_marginTop="10dp"
-                android:layout_gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="Tipo menú">
-
-                <AutoCompleteTextView
-                    android:id="@+id/tmenu_dropdown"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:ems="15"
-                    android:cursorVisible="false"
-                    android:focusable="false"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:id="@+id/contenedor_dia"
                 android:layout_marginTop="10dp"
                 android:layout_gravity="center"
@@ -146,6 +129,24 @@
 
                 <AutoCompleteTextView
                     android:id="@+id/filled_exposed_dropdown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="15"
+                    android:cursorVisible="false"
+                    android:focusable="false"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:id="@+id/contenedor_menu"
+                android:layout_marginTop="10dp"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Tipo menú">
+
+                <AutoCompleteTextView
+                    android:id="@+id/tmenu_dropdown"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ems="15"

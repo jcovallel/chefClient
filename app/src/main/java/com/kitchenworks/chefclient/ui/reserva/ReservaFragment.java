@@ -59,7 +59,7 @@ public class ReservaFragment extends Fragment {
     private TextInputEditText nombre,celular,email,cargo,direccion, observaciones;
     private String fecha,hora,empresasend,empresaget;
     private AutoCompleteTextView editTextFilledExposedDropdown, editTextFilledExposedDropdown2, editTextFilledExposedDropdown3, editTextFilledExposedDropdown4;
-    TextInputLayout horaContainer, dirContainer, diaContainer, entregaContainer;
+    TextInputLayout horaContainer, dirContainer, diaContainer, entregaContainer, menuContainer;
     Button btnEnviar;
     private TextView textView;
     private ImageView imageView;
@@ -99,7 +99,7 @@ public class ReservaFragment extends Fragment {
             @Override
             public void run() {
                 try{
-                    URL obj = new URL ( getString(R.string.server)+"chef/getavailabledays/");
+                    URL obj = new URL ( getString(R.string.server)+"chef/getdispodiassitio/"+empresaget);
                     HttpURLConnection con = (HttpURLConnection) obj.openConnection();
                     con.setRequestMethod("GET");
                     int responseCode = con.getResponseCode();
@@ -125,21 +125,40 @@ public class ReservaFragment extends Fragment {
         while(threadone.isAlive());
         JSONArray arr = null;
         List<String> list = new ArrayList<String>();
+        final int dianumb = Integer.parseInt(new SimpleDateFormat("u", Locale.getDefault()).format(new Date()));
+        int horaint = Integer.parseInt(new SimpleDateFormat("k", Locale.getDefault()).format(new Date()));
+        int min = Integer.parseInt(new SimpleDateFormat("m", Locale.getDefault()).format(new Date()));
+        System.out.println("dias: "+dianumb);
         try {
             arr = new JSONArray(responsef.toString());
-            for(int i = 0; i < arr.length(); i++){
-                String str = arr.getJSONObject(i).getString("dia");
-                list.add(str);
+            if((Boolean)arr.getJSONObject(0).get("lunes") && dianumb<=1){
+                list.add("Lunes");
+            }
+            if((Boolean)arr.getJSONObject(0).get("martes") && dianumb<=2){
+                list.add("Martes");
+            }
+            if((Boolean)arr.getJSONObject(0).get("miercoles") && dianumb<=3){
+                list.add("Miercoles");
+            }
+            if((Boolean)arr.getJSONObject(0).get("jueves") && dianumb<=4){
+                list.add("Jueves");
+            }
+            if((Boolean)arr.getJSONObject(0).get("viernes") && dianumb<=5){
+                System.out.println("im here");
+                list.add("Viernes");
+            }
+            if((Boolean)arr.getJSONObject(0).get("sabado") && dianumb<=6){
+                list.add("Sabado");
+            }
+            if((Boolean)arr.getJSONObject(0).get("domingo") && dianumb<=0){
+                list.add("Domingo");
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        boolean nocturno = false;
-        final String dianumb = new SimpleDateFormat("u", Locale.getDefault()).format(new Date());
-        int horaint = Integer.parseInt(new SimpleDateFormat("k", Locale.getDefault()).format(new Date()));
-        int min = Integer.parseInt(new SimpleDateFormat("m", Locale.getDefault()).format(new Date()));
-        if(empresasend.equals("Albahaca") && dianumb.equals("5") && horaint<=19 && horaint>=18){
+        System.out.println(list.toString());
+        //boolean nocturno = false;
+        /*if(empresasend.equals("Albahaca") && dianumb.equals("5") && horaint<=19 && horaint>=18){
             if(!(horaint==19 && min>45)){
                 nocturno=true;
             }
@@ -149,8 +168,9 @@ public class ReservaFragment extends Fragment {
             Adias = new String[] {"Viernes"};
         }else{
             Adias = list.toArray(new String[0]);
-        }
-
+        }*/
+        final String [] Adias;
+        Adias = list.toArray(new String[0]);
         if(Adias.length>0){
             scrollView.setVisibility(View.VISIBLE);
             btnEnviar = root.findViewById(R.id.enviar);
@@ -170,7 +190,8 @@ public class ReservaFragment extends Fragment {
             dirContainer = root.findViewById(R.id.addressContainer);
             diaContainer = root.findViewById(R.id.contenedor_dia);
             entregaContainer = root.findViewById(R.id.contenedor_entrega);
-            diaContainer.setVisibility(View.GONE);
+            menuContainer = root.findViewById(R.id.contenedor_menu);
+            menuContainer.setVisibility(View.GONE);
             horaContainer.setVisibility(View.GONE);
             dirContainer.setVisibility(View.GONE);
             entregaContainer.setVisibility(View.GONE);
@@ -213,149 +234,13 @@ public class ReservaFragment extends Fragment {
                     }
                 }
             });
-            String [] entrega;
-            if(empresasend.equals("Albahaca")){
-                entrega = new String[] {"En sitio"};
-            }else {
-                //entrega = new String[] {"En sitio","A domicilio"};
-                entrega = new String[] {"En sitio"};
-            }
 
-            ArrayAdapter<String> adapter2 =
+            ArrayAdapter<String> adapter =
                     new ArrayAdapter<>(
                             getContext(),
                             R.layout.dropdown_menu_popup_item,
-                            entrega);
-
-            editTextFilledExposedDropdown2.setAdapter(adapter2);
-
-            String [] tmenu = new String[] {"Alterno","Del día"};
-
-            ArrayAdapter<String> adapter4 =
-                    new ArrayAdapter<>(
-                            getContext(),
-                            R.layout.dropdown_menu_popup_item,
-                            tmenu);
-
-            editTextFilledExposedDropdown4.setAdapter(adapter4);
-
-            editTextFilledExposedDropdown4.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                }
-
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-                    String [] dias;
-                    if(empresasend.equals("Albahaca")){
-                        switch (dianumb){
-                            case "1":{
-                                dias = new String[] {"Lunes"};
-                            }break;
-                            case "2":{
-                                dias = new String[] {"Martes"};
-                            }break;
-                            case "3":{
-                                dias = new String[] {"Miércoles"};
-                            }break;
-                            case "4":{
-                                dias = new String[] {"Jueves"};
-                            }break;
-                            case "5":{
-                                dias = new String[] {"Viernes"};
-                            }break;
-                            default:{
-                                dias = new String[] {"not available"};
-                            }
-                        }
-                        ArrayAdapter<String> adapter =
-                                new ArrayAdapter<>(
-                                        getContext(),
-                                        R.layout.dropdown_menu_popup_item,
-                                        dias);
-                        editTextFilledExposedDropdown.setAdapter(adapter);
-                        diaContainer.setVisibility(View.VISIBLE);
-                    }else{
-                        if(s.toString().equals("Alterno")){
-                            Thread threadst;
-                            final StringBuffer response2 = new StringBuffer();
-                            threadst = new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try{
-                                        URL obj = new URL ( getString(R.string.server)+"chef/getdayslist/"+empresaget);
-                                        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-                                        con.setRequestMethod("GET");
-                                        int responseCode = con.getResponseCode();
-                                        if (responseCode == HttpURLConnection.HTTP_OK) { // success
-                                            BufferedReader in = new BufferedReader(new InputStreamReader(
-                                                    con.getInputStream()));
-
-                                            String inputLine;
-                                            while ((inputLine = in.readLine()) != null) {
-                                                response2.append(inputLine);
-                                            }
-                                            in.close();
-                                        } else {
-                                            System.out.println("GET request not worked");
-                                        }
-                                    }catch (MalformedURLException e){
-                                        e.printStackTrace();
-                                    }catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });threadst.start();
-                            while(threadst.isAlive());
-                            JSONArray arr = null;
-                            List<String> list = new ArrayList<String>();
-                            try {
-                                arr = new JSONArray(response2.toString());
-                                for(int i = 0; i < arr.length(); i++){
-                                    String str = arr.getJSONObject(i).getString("dia");
-                                    list.add(str);
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            dias = list.toArray(new String[0]);
-
-                            if(dias.length==0){
-                                new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
-                                        .setTitle("Lo Sentimos.")
-                                        .setMessage("No se encontro disponibilidad para el tipo de menú selecccionado, intente con otro tipo " +
-                                                "o intente mas tarde.")
-                                        .setPositiveButton("Ok", null)
-                                        .show();
-                                editTextFilledExposedDropdown4.setText(null);
-                            }else {
-                                ArrayAdapter<String> adapter =
-                                        new ArrayAdapter<>(
-                                                getContext(),
-                                                R.layout.dropdown_menu_popup_item,
-                                                dias);
-                                editTextFilledExposedDropdown.setAdapter(adapter);
-                                diaContainer.setVisibility(View.VISIBLE);
-                            }
-
-                        }else {
-                            if(s.toString().equals("Del día")){
-                                ArrayAdapter<String> adapter =
-                                        new ArrayAdapter<>(
-                                                getContext(),
-                                                R.layout.dropdown_menu_popup_item,
-                                                Adias);
-                                editTextFilledExposedDropdown.setAdapter(adapter);
-                                diaContainer.setVisibility(View.VISIBLE);
-                            }
-                        }
-                    }
-                }
-            });
+                            Adias);
+            editTextFilledExposedDropdown.setAdapter(adapter);
 
             editTextFilledExposedDropdown.addTextChangedListener(new TextWatcher() {
                 @Override
@@ -368,7 +253,145 @@ public class ReservaFragment extends Fragment {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    entregaContainer.setVisibility(View.VISIBLE);
+                    String [] menus;
+                    Thread threadst;
+                    final StringBuffer response2 = new StringBuffer();
+                    threadst = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try{
+                                URL obj = new URL ( getString(R.string.server)+"chef/getmenustrueempresa/"+empresaget);
+                                HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+                                con.setRequestMethod("GET");
+                                int responseCode = con.getResponseCode();
+                                if (responseCode == HttpURLConnection.HTTP_OK) { // success
+                                    BufferedReader in = new BufferedReader(new InputStreamReader(
+                                            con.getInputStream()));
+
+                                    String inputLine;
+                                    while ((inputLine = in.readLine()) != null) {
+                                        response2.append(inputLine);
+                                    }
+                                    in.close();
+                                } else {
+                                    System.out.println("GET request not worked");
+                                }
+                            }catch (MalformedURLException e){
+                                e.printStackTrace();
+                            }catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });threadst.start();
+                    while(threadst.isAlive());
+                    JSONArray arr = null;
+                    List<String> list = new ArrayList<String>();
+                    try {
+                        arr = new JSONArray(response2.toString());
+                        for(int i = 0; i < arr.length(); i++){
+                            String str = arr.getJSONObject(i).getString("menu");
+                            list.add(str);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    menus = list.toArray(new String[0]);
+                    if(menus.length==0){
+                        new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
+                                .setTitle("Lo Sentimos.")
+                                .setMessage("No se encontraron menus para el restaurante selecccionado, " +
+                                        "intente mas tarde.")
+                                .setPositiveButton("Ok", null)
+                                .show();
+                    }else {
+                        ArrayAdapter<String> adapter2 =
+                                new ArrayAdapter<>(
+                                        getContext(),
+                                        R.layout.dropdown_menu_popup_item,
+                                        menus);
+                        editTextFilledExposedDropdown4.setAdapter(adapter2);
+                        menuContainer.setVisibility(View.VISIBLE);
+                    }
+                }
+            });
+
+            String [] entrega;
+            entrega = new String[] {"En sitio"};
+
+            ArrayAdapter<String> adapter3 =
+                    new ArrayAdapter<>(
+                            getContext(),
+                            R.layout.dropdown_menu_popup_item,
+                            entrega);
+
+            editTextFilledExposedDropdown2.setAdapter(adapter3);
+
+            editTextFilledExposedDropdown4.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                }
+
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    String [] dispodays;
+                    Thread threadst;
+                    final String menu =  editTextFilledExposedDropdown4.getText().toString();
+                    final String dia = editTextFilledExposedDropdown.getText().toString().toLowerCase();
+                    final StringBuffer response2 = new StringBuffer();
+                    threadst = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try{
+                                URL obj = new URL ( getString(R.string.server)+"chef/getdispomenu/"+empresaget+"/"+menu);
+                                HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+                                con.setRequestMethod("GET");
+                                int responseCode = con.getResponseCode();
+                                if (responseCode == HttpURLConnection.HTTP_OK) { // success
+                                    BufferedReader in = new BufferedReader(new InputStreamReader(
+                                            con.getInputStream()));
+
+                                    String inputLine;
+                                    while ((inputLine = in.readLine()) != null) {
+                                        response2.append(inputLine);
+                                    }
+                                    in.close();
+                                } else {
+                                    System.out.println("GET request not worked");
+                                }
+                            }catch (MalformedURLException e){
+                                e.printStackTrace();
+                            }catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });threadst.start();
+                    while(threadst.isAlive());
+                    JSONArray arr = null;
+                    List<String> list = new ArrayList<String>();
+                    try {
+                        arr = new JSONArray(response2.toString());
+                        for(int i = 0; i < arr.length(); i++){
+                            String str = arr.getJSONObject(i).getString(dia);
+                            list.add(str);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    dispodays = list.toArray(new String[0]);
+                    if(Integer.parseInt(dispodays[0])==0){
+                        new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
+                                .setTitle("Lo Sentimos.")
+                                .setMessage("No se encontró disponibilidad para el menu selecccionado, intente con otro " +
+                                        "o intente mas tarde.")
+                                .setPositiveButton("Ok", null)
+                                .show();
+                    }else {
+                        entregaContainer.setVisibility(View.VISIBLE);
+                    }
                 }
             });
 
@@ -384,14 +407,15 @@ public class ReservaFragment extends Fragment {
                     String[] hora;
                     if(s.toString().equals("En sitio")) {
                         dirContainer.setVisibility(View.GONE);
-                        final String dia =  editTextFilledExposedDropdown.getText().toString();
+                        final String dia =  editTextFilledExposedDropdown.getText().toString().toLowerCase();
+                        final String menu =  editTextFilledExposedDropdown4.getText().toString();
                         Thread threadnames;
-                        final StringBuffer response = new StringBuffer();
+                        final StringBuffer response4 = new StringBuffer();
                         threadnames = new Thread(new Runnable() {
                             @Override
                             public void run() {
                                 try{
-                                    URL obj = new URL ( getString(R.string.server)+"chef/gethours/"+empresaget+"/"+dia);
+                                    URL obj = new URL ( getString(R.string.server)+"chef/gethours/"+empresaget+"/"+dia+"/"+menu);
                                     HttpURLConnection con = (HttpURLConnection) obj.openConnection();
                                     con.setRequestMethod("GET");
                                     int responseCode = con.getResponseCode();
@@ -401,7 +425,7 @@ public class ReservaFragment extends Fragment {
 
                                         String inputLine;
                                         while ((inputLine = in.readLine()) != null) {
-                                            response.append(inputLine);
+                                            response4.append(inputLine);
                                         }
                                         in.close();
                                     } else {
@@ -415,11 +439,11 @@ public class ReservaFragment extends Fragment {
                             }
                         });threadnames.start();
                         while(threadnames.isAlive());
-
                         JSONArray arr = null;
                         List<String> list = new ArrayList<String>();
                         try {
-                            arr = new JSONArray(response.toString());
+                            arr = new JSONArray(response4.toString());
+                            System.out.println("myarray"+arr.toString());
                             for(int i = 0; i < arr.length(); i++){
                                 String str = arr.getJSONObject(i).getString("horas");
                                 list.add(str);
