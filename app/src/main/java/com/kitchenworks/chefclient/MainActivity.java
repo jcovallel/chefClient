@@ -1,5 +1,6 @@
 package com.kitchenworks.chefclient;
 
+import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -24,6 +25,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,8 +34,15 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -145,34 +154,64 @@ public class MainActivity extends AppCompatActivity {
                 empresa = s.toString();
                 final String empresar = StringUtils.stripAccents(empresa).replaceAll(" ","-");
                 Thread threadimg;
-                ContextWrapper contextWrapper = new ContextWrapper(getApplicationContext());
-                final String ruta = contextWrapper.getFilesDir() + "/"+ empresar + "Menu.jpg";
-                System.out.println("ruta: "+ruta);
+                final ContextWrapper contextWrapper = new ContextWrapper(getApplicationContext());
+                //final String ruta = contextWrapper.getFilesDir() + "/"+ empresar + "Menu.jpg";
+                final String ruta = contextWrapper.getFilesDir() + "/"+ "prueba/Menu0.jpg";
+                final Boolean finish = false;
 
-                threadimg = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            URL url = new URL ( getString(R.string.server)+empresar+"Menu.jpg");
-                            InputStream input = url.openStream();
-                            OutputStream output = new FileOutputStream(ruta);
+                while(!finish){
+                    threadimg = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
                             try {
-                                byte[] buffer = new byte[64*1024];
-                                int bytesRead = 0;
-                                while ((bytesRead = input.read(buffer, 0, buffer.length)) >= 0) {
-                                    output.write(buffer, 0, bytesRead);
+                                //URL url = new URL ( getString(R.string.server)+empresar+"Menu.jpg");
+                                URL url = new URL ( getString(R.string.server)+empresar+"prueba/"+"Menu8.jpg");
+                                InputStream input = url.openStream();
+
+                                //File mydir = contextWrapper.getDir("prueba", Context.MODE_PRIVATE); //Creating an internal dir;
+                                //System.out.println("dir "+mydir);
+                                //File fileWithinMyDir = new File(mydir, "Menu0.jpg"); //Getting a file within the dir.
+                                //FileOutputStream output = new FileOutputStream(fileWithinMyDir); //Use the stream as usual to write into the file.
+                                //FileOutputStream s = new FileOutputStream(file,false);
+
+                                File mFileTemp = new File(contextWrapper.getFilesDir() + File.separator
+                                        + "prueba"
+                                        , "Menu0"
+                                        + ".jpg");
+                                mFileTemp.getParentFile().mkdirs();
+                                FileOutputStream output = new FileOutputStream(mFileTemp,false);
+
+                                //OutputStream output = new FileOutputStream(ruta,false);
+                                try {
+                                    byte[] buffer = new byte[64*1024];
+                                    int bytesRead = 0;
+                                    while ((bytesRead = input.read(buffer, 0, buffer.length)) >= 0) {
+                                        output.write(buffer, 0, bytesRead);
+                                    }
+                                } finally {
+                                    output.close();
                                 }
-                            } finally {
-                                output.close();
+                                input.close();
+                            }catch (MalformedURLException e){
+                                e.printStackTrace();
+                            }catch (IOException e){
+                                e.printStackTrace();
                             }
-                            input.close();
-                        }catch (MalformedURLException e){
+                        /*OkHttpClient client = new OkHttpClient();
+                        Request request = new Request.Builder()
+                                .url(getString(R.string.server)+"chef/prueba")
+                                .build();
+
+                        try (Response response = client.newCall(request).execute()) {
+                            System.out.println(response.body().string());
+                            response.body().
+                        } catch (IOException e) {
                             e.printStackTrace();
-                        }catch (IOException e){
-                            e.printStackTrace();
+                        }*/
                         }
-                    }
-                });threadimg.start();
+                    });threadimg.start();
+                }
+
 
                 button.setEnabled(true);
                 button.setBackgroundColor(Color.parseColor("#FFFFFF"));

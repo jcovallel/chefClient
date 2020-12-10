@@ -33,4 +33,5 @@ dependencies {
     implementation  'org.apache.commons:commons-lang3:3.0'
     implementation 'com.github.ittianyu:BottomNavigationViewEx:2.0.4'
     implementation "androidx.asynclayoutinflater:asynclayoutinflater:1.0.0"
+    implementation("com.squareup.okhttp3:okhttp:4.8.0")
 }

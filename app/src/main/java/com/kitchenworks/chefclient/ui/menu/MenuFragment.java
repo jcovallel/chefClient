@@ -39,7 +39,8 @@ public class MenuFragment extends Fragment {
 
         ContextWrapper contextWrapper = new ContextWrapper(MenuFragment.this.getActivity());
         String empresar = StringUtils.stripAccents(empresasend).replaceAll(" ","-");
-        final String ruta = contextWrapper.getFilesDir() +"/"+ empresar+ "Menu.jpg";
+        //final String ruta = contextWrapper.getFilesDir() +"/"+ empresar +"/"+ "Menu.jpg";
+        final String ruta = contextWrapper.getFilesDir() +"/prueba"+"/"+ "Menu0.jpg";
 
         ConnectivityManager connectivityManager = (ConnectivityManager) MenuFragment.this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
