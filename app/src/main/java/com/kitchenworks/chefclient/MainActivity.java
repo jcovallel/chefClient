@@ -159,20 +159,23 @@ public class MainActivity extends AppCompatActivity {
                 final ContextWrapper contextWrapper = new ContextWrapper(getApplicationContext());
                 //final String ruta = contextWrapper.getFilesDir() + "/"+ empresar + "Menu.jpg";
                 final String ruta = contextWrapper.getFilesDir() + "/"+ "prueba/Menu0.jpg";
-                final AtomicInteger finish = new AtomicInteger();
-                final AtomicInteger index = new AtomicInteger(-1);
-                while(finish.get()==0){
-                    index.getAndIncrement();
+
+
+                //final AtomicInteger finish = new AtomicInteger();
+                //final AtomicInteger index = new AtomicInteger(-1);
+                //while(finish.get()==0){
+                    //index.getAndIncrement();
                     threadimg = new Thread(new Runnable() {
                         @Override
                         public void run() {
                             try {
-                                URL url = new URL ( getString(R.string.server)+empresar+"/Menu"+index.get()+".jpg");
+                                //URL url = new URL ( getString(R.string.server)+empresar+"/Menu"+index.get()+".jpg");
+                                URL url = new URL ( getString(R.string.server)+empresar+"/Menu"+0+".jpg");
                                 InputStream input = url.openStream();
                                 File mFileTemp = new File(contextWrapper.getFilesDir() + File.separator
                                         + empresar
                                         , "Menu"
-                                        + index.get()
+                                        + 0
                                         + ".jpg");
                                 mFileTemp.getParentFile().mkdirs();
                                 FileOutputStream output = new FileOutputStream(mFileTemp,false);
@@ -188,14 +191,14 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 input.close();
                             }catch (FileNotFoundException e){
-                                System.out.println("dlfshkjdfh"+index.get());
+                                //System.out.println("dlfshkjdfh"+index.get());
                                 //finish.g;
                             }catch (IOException e){
                                 e.printStackTrace();
                             }
                         }
                     });threadimg.start();
-                }
+                //}
 
 
                 button.setEnabled(true);
