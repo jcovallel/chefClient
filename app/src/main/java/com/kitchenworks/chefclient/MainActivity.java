@@ -26,6 +26,7 @@ import org.json.JSONException;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +40,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -157,31 +159,24 @@ public class MainActivity extends AppCompatActivity {
                 final ContextWrapper contextWrapper = new ContextWrapper(getApplicationContext());
                 //final String ruta = contextWrapper.getFilesDir() + "/"+ empresar + "Menu.jpg";
                 final String ruta = contextWrapper.getFilesDir() + "/"+ "prueba/Menu0.jpg";
-                final Boolean finish = false;
-
-                while(!finish){
+                final AtomicInteger finish = new AtomicInteger();
+                final AtomicInteger index = new AtomicInteger(-1);
+                while(finish.get()==0){
+                    index.getAndIncrement();
                     threadimg = new Thread(new Runnable() {
                         @Override
                         public void run() {
                             try {
-                                //URL url = new URL ( getString(R.string.server)+empresar+"Menu.jpg");
-                                URL url = new URL ( getString(R.string.server)+empresar+"prueba/"+"Menu8.jpg");
+                                URL url = new URL ( getString(R.string.server)+empresar+"/Menu"+index.get()+".jpg");
                                 InputStream input = url.openStream();
-
-                                //File mydir = contextWrapper.getDir("prueba", Context.MODE_PRIVATE); //Creating an internal dir;
-                                //System.out.println("dir "+mydir);
-                                //File fileWithinMyDir = new File(mydir, "Menu0.jpg"); //Getting a file within the dir.
-                                //FileOutputStream output = new FileOutputStream(fileWithinMyDir); //Use the stream as usual to write into the file.
-                                //FileOutputStream s = new FileOutputStream(file,false);
-
                                 File mFileTemp = new File(contextWrapper.getFilesDir() + File.separator
-                                        + "prueba"
-                                        , "Menu0"
+                                        + empresar
+                                        , "Menu"
+                                        + index.get()
                                         + ".jpg");
                                 mFileTemp.getParentFile().mkdirs();
                                 FileOutputStream output = new FileOutputStream(mFileTemp,false);
 
-                                //OutputStream output = new FileOutputStream(ruta,false);
                                 try {
                                     byte[] buffer = new byte[64*1024];
                                     int bytesRead = 0;
@@ -192,22 +187,12 @@ public class MainActivity extends AppCompatActivity {
                                     output.close();
                                 }
                                 input.close();
-                            }catch (MalformedURLException e){
-                                e.printStackTrace();
+                            }catch (FileNotFoundException e){
+                                System.out.println("dlfshkjdfh"+index.get());
+                                //finish.g;
                             }catch (IOException e){
                                 e.printStackTrace();
                             }
-                        /*OkHttpClient client = new OkHttpClient();
-                        Request request = new Request.Builder()
-                                .url(getString(R.string.server)+"chef/prueba")
-                                .build();
-
-                        try (Response response = client.newCall(request).execute()) {
-                            System.out.println(response.body().string());
-                            response.body().
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }*/
                         }
                     });threadimg.start();
                 }
