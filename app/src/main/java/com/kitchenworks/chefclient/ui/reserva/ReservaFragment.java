@@ -482,19 +482,73 @@ public class ReservaFragment extends Fragment {
             });
 
             btnEnviar.setOnClickListener(new View.OnClickListener() {
+                Boolean error=false;
                 @Override
                 public void onClick(View v) {
                     final String nombrestr = nombre.getText().toString();
-                    final String celularstr = celular.getText().toString();
-                    final String emailstr = email.getText().toString();
-                    final String cargostr = cargo.getText().toString();
-                    final String tipomenu = editTextFilledExposedDropdown4.getText().toString();
-                    String dia = editTextFilledExposedDropdown.getText().toString();
-                    if(dia.equalsIgnoreCase("Miércoles")){
-                        dia = "Miercoles";
+                    if(nombrestr.isEmpty()){
+                        error=true;
+                        new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
+                                .setTitle("Error.")
+                                .setMessage("Debe proporcionar un nombre.")
+                                .setPositiveButton("Ok", null)
+                                .show();
                     }
+                    final String celularstr = celular.getText().toString();
+                    if(celularstr.isEmpty() && !error){
+                        error=true;
+                        new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
+                                .setTitle("Error.")
+                                .setMessage("Debe proporcionar un numero de teléfono.")
+                                .setPositiveButton("Ok", null)
+                                .show();
+                    }
+                    final String emailstr = email.getText().toString();
+                    if(emailstr.isEmpty() && !error){
+                        error=true;
+                        new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
+                                .setTitle("Error.")
+                                .setMessage("Debe proporcionar un email.")
+                                .setPositiveButton("Ok", null)
+                                .show();
+                    }
+                    final String cargostr = cargo.getText().toString();
+                    if(cargostr.isEmpty() && !error){
+                        error=true;
+                        new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
+                                .setTitle("Error.")
+                                .setMessage("Debe proporcionar un cargo.")
+                                .setPositiveButton("Ok", null)
+                                .show();
+                    }
+                    final String tipomenu = editTextFilledExposedDropdown4.getText().toString();
+                    if(tipomenu.isEmpty() && !error){
+                        error=true;
+                        new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
+                                .setTitle("Error.")
+                                .setMessage("Debe seleccionar un menu.")
+                                .setPositiveButton("Ok", null)
+                                .show();
+                    }
+                    String dia = editTextFilledExposedDropdown.getText().toString();
                     final String diastr = dia;
+                    if(diastr.isEmpty() && !error){
+                        error=true;
+                        new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
+                                .setTitle("Error.")
+                                .setMessage("Debe seleccionar un día.")
+                                .setPositiveButton("Ok", null)
+                                .show();
+                    }
                     final String entrega = editTextFilledExposedDropdown2.getText().toString();
+                    if(entrega.isEmpty() && !error){
+                        error=true;
+                        new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
+                                .setTitle("Error.")
+                                .setMessage("Debe seleccionar el tipo de entrega.")
+                                .setPositiveButton("Ok", null)
+                                .show();
+                    }
                     String hora2, direccion2;
                     if(entrega.equals("En sitio")){
                         hora2 = editTextFilledExposedDropdown3.getText().toString();
@@ -504,62 +558,72 @@ public class ReservaFragment extends Fragment {
                         hora2 = "";
                     }
                     final String horaensitio = hora2;
+                    if(horaensitio.isEmpty() && !error){
+                        error=true;
+                        new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
+                                .setTitle("Error.")
+                                .setMessage("Debe seleccionar un horario de entrega.")
+                                .setPositiveButton("Ok", null)
+                                .show();
+                    }
                     final String direccionstr = direccion2;
                     final String observacionestr = observaciones.getText().toString();
 
-                    Thread thread = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                URL url = new URL ( getString(R.string.server)+"chef/reserva/save/"+empresaget+diastr);
-                                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                                conn.setDoOutput(true);
-                                conn.setRequestMethod("POST");
-                                conn.setRequestProperty("Content-Type", "application/json");
+                    if(!error){
+                        Thread thread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    URL url = new URL ( getString(R.string.server)+"chef/reserva/save/"+empresaget+diastr);
+                                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                                    conn.setDoOutput(true);
+                                    conn.setRequestMethod("POST");
+                                    conn.setRequestProperty("Content-Type", "application/json");
 
-                                String input = "{\"empresa\":\""+ empresasend +"\",\"fecha\":\"" + fecha + "\",\"hora\":\"" + hora + "\",\"nombre\":\"" + nombrestr + "\"" +
-                                        ",\"celular\":\""+celularstr+"\",\"correo\":\""+emailstr+"\",\"cargo\":\""+cargostr+"\",\"tipomenu\":\""+ tipomenu + "\"" +
-                                        ",\"dia\":\""+diastr+"\",\"entrega\":\""+entrega+"\",\"horaentrega\":\""+horaensitio+"\","+
-                                        "\"observaciones\":\""+observacionestr+"\"}";
+                                    String input = "{\"empresa\":\""+ empresasend +"\",\"fecha\":\"" + fecha + "\",\"hora\":\"" + hora + "\",\"nombre\":\"" + nombrestr + "\"" +
+                                            ",\"celular\":\""+celularstr+"\",\"correo\":\""+emailstr+"\",\"cargo\":\""+cargostr+"\",\"tipomenu\":\""+ tipomenu + "\"" +
+                                            ",\"dia\":\""+diastr+"\",\"entrega\":\""+entrega+"\",\"horaentrega\":\""+horaensitio+"\","+
+                                            "\"observaciones\":\""+observacionestr+"\",\"plataforma\":\"APP\"}";
 
-                                OutputStream os = conn.getOutputStream();
-                                os.write(input.getBytes());
-                                os.flush();
+                                    OutputStream os = conn.getOutputStream();
+                                    os.write(input.getBytes());
+                                    os.flush();
 
-                                if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                                    ReservaFragment.this.getActivity().runOnUiThread(new Runnable() {
-                                        public void run() {
-                                            new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
-                                                    .setTitle("Lo Sentimos.")
-                                                    .setMessage("Algo ocurrio al realizar la reserva, verifica tu conexion a internet " +
-                                                            "o intentalo mas tarde.")
-                                                    .setPositiveButton("Ok", null)
-                                                    .show();
-                                        }
-                                    });
-                                }else{
-                                    ReservaFragment.this.getActivity().runOnUiThread(new Runnable() {
-                                        public void run() {
-                                            new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
-                                                    .setTitle("Reserva exitosa!")
-                                                    .setPositiveButton("Ok", null)
-                                                    .show();
-                                        }
-                                    });
+                                    if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                                        ReservaFragment.this.getActivity().runOnUiThread(new Runnable() {
+                                            public void run() {
+                                                new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
+                                                        .setTitle("Lo Sentimos.")
+                                                        .setMessage("Algo ocurrio al realizar la reserva, verifica tu conexion a internet " +
+                                                                "o intentalo mas tarde.")
+                                                        .setPositiveButton("Ok", null)
+                                                        .show();
+                                            }
+                                        });
+                                    }else{
+                                        ReservaFragment.this.getActivity().runOnUiThread(new Runnable() {
+                                            public void run() {
+                                                new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
+                                                        .setTitle("Reserva exitosa!")
+                                                        .setPositiveButton("Ok", null)
+                                                        .show();
+                                            }
+                                        });
+                                    }
+
+                                    conn.disconnect();
+
+                                } catch (MalformedURLException e) {
+
+                                    e.printStackTrace();
+
+                                } catch (IOException e) {
+                                    e.printStackTrace();
                                 }
-
-                                conn.disconnect();
-
-                            } catch (MalformedURLException e) {
-
-                                e.printStackTrace();
-
-                            } catch (IOException e) {
-                                e.printStackTrace();
                             }
-                        }
-                    });
-                    thread.start();
+                        });
+                        thread.start();
+                    }
 
                     /*if(tipomenu.equals("Alterno")){
                         Thread threadget = new Thread(new Runnable() {
