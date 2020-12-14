@@ -11,12 +11,16 @@ import androidx.navigation.ui.NavigationUI;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 
 public class Second_activity extends AppCompatActivity {
-    private String empresa;
+    private String empresa, adminName;
+    private int imgnummenu, imgnumtips;
     private Boolean nodispo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Bundle bundle = getIntent().getExtras();
         empresa = bundle.getString("empresa");
+        imgnummenu = bundle.getInt("imgnummenu");
+        imgnumtips = bundle.getInt("imgnumtips");
+        adminName = bundle.getString("admin");
         nodispo = false;
 
         super.onCreate(savedInstanceState);
@@ -42,6 +46,15 @@ public class Second_activity extends AppCompatActivity {
 
     public String getEmpresa() {
         return empresa;
+    }
+    public String getAdminName() {
+        return adminName;
+    }
+    public int getImgnummenu() {
+        return imgnummenu;
+    }
+    public int getImgnumtips() {
+        return imgnumtips;
     }
     public boolean getDispo() {
         return nodispo;

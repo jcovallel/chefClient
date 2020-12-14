@@ -1,6 +1,5 @@
 package com.kitchenworks.chefclient;
 
-import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -31,20 +30,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,10 +44,14 @@ public class MainActivity extends AppCompatActivity {
     TextInputLayout inputLayout;
     MaterialButton button;
     StringBuffer response = new StringBuffer();
-    String empresa;
+    StringBuffer response2 = new StringBuffer();
+    String empresa, AdminName;
+    int imgnummenu, imgnumtips;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        //SE REALIZA LA PETICION PARA OBTENER EL LISTADO DE USUARIOS
 
         this.threadnames = new Thread(new Runnable() {
             @Override
@@ -145,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
         button.setBackgroundColor(Color.parseColor("#2a295c"));
         button.setTextColor(Color.parseColor("#FFFFFF"));
 
+        //CUANDO SE SELECCIONE UN RESTAURANTE DE LA LISTA DESPLEGABLE
         CTDropdown.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {}
@@ -155,51 +150,131 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 empresa = s.toString();
                 final String empresar = StringUtils.stripAccents(empresa).replaceAll(" ","-");
-                Thread threadimg;
-                final ContextWrapper contextWrapper = new ContextWrapper(getApplicationContext());
-                //final String ruta = contextWrapper.getFilesDir() + "/"+ empresar + "Menu.jpg";
-                final String ruta = contextWrapper.getFilesDir() + "/"+ "prueba/Menu0.jpg";
+                Thread threadimgnum, threadimg;
 
-
-                //final AtomicInteger finish = new AtomicInteger();
-                //final AtomicInteger index = new AtomicInteger(-1);
-                //while(finish.get()==0){
-                    //index.getAndIncrement();
-                    threadimg = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                //URL url = new URL ( getString(R.string.server)+empresar+"/Menu"+index.get()+".jpg");
-                                URL url = new URL ( getString(R.string.server)+empresar+"/Menu"+0+".jpg");
-                                InputStream input = url.openStream();
-                                File mFileTemp = new File(contextWrapper.getFilesDir() + File.separator
-                                        + empresar
-                                        , "Menu"
-                                        + 0
-                                        + ".jpg");
-                                mFileTemp.getParentFile().mkdirs();
-                                FileOutputStream output = new FileOutputStream(mFileTemp,false);
-
-                                try {
-                                    byte[] buffer = new byte[64*1024];
-                                    int bytesRead = 0;
-                                    while ((bytesRead = input.read(buffer, 0, buffer.length)) >= 0) {
-                                        output.write(buffer, 0, bytesRead);
-                                    }
-                                } finally {
-                                    output.close();
+                //REALIZA LA CONSULTA DEL NUMERO DE IMAGENES DE MENÚ PARA EL RESTAURANTE SELECCIONADO
+                threadimgnum = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try{
+                            URL obj = new URL ( getString(R.string.server)+"chef/getimgnum/"+empresa);
+                            HttpURLConnection con2 = (HttpURLConnection) obj.openConnection();
+                            con2.setRequestMethod("GET");
+                            int responseCode2 = con2.getResponseCode();
+                            if (responseCode2 == HttpURLConnection.HTTP_OK) { // success
+                                BufferedReader in2 = new BufferedReader(new InputStreamReader(
+                                        con2.getInputStream()));
+                                String inputLine2;
+                                while ((inputLine2 = in2.readLine()) != null) {
+                                    response2.append(inputLine2);
                                 }
-                                input.close();
-                            }catch (FileNotFoundException e){
-                                //System.out.println("dlfshkjdfh"+index.get());
-                                //finish.g;
-                            }catch (IOException e){
-                                e.printStackTrace();
+                                in2.close();
+                            } else {
+                                System.out.println("GET request not worked");
                             }
+                        }catch (MalformedURLException e){
+                            e.printStackTrace();
+                        }catch (IOException e) {
+                            e.printStackTrace();
                         }
-                    });threadimg.start();
-                //}
+                    }
+                });threadimgnum.start();
 
+                while(threadimgnum.isAlive());
+
+                JSONArray arr2 = null;
+                imgnummenu =0;
+                try {
+                    arr2 = new JSONArray(response2.toString());
+                    imgnummenu = Integer.parseInt(arr2.getJSONObject(0).getString("imgnum"));
+                    imgnumtips = Integer.parseInt(arr2.getJSONObject(1).getString("imgnum"));
+                    AdminName = arr2.getJSONObject(2).getString("nombre");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                final ContextWrapper contextWrapper = new ContextWrapper(getApplicationContext());
+
+                //SI EL NUMERO DE IMAGENES DE TIS PARA EL RESTAURANTE NO ES CERO ENTONCES TRAE LAS IMAGENES Y LAS GUARDA
+                if(imgnumtips >0){
+                    for(int j = 0; j< imgnummenu; j++){
+                        final int index = j;
+                        threadimg = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    URL url = new URL ( getString(R.string.server)+AdminName+"/Menu"+index+".jpg");
+                                    InputStream input = url.openStream();
+                                    File mFileTemp = new File(contextWrapper.getFilesDir() + File.separator
+                                            + AdminName
+                                            , "Menu"
+                                            + index
+                                            + ".jpg");
+                                    mFileTemp.getParentFile().mkdirs();
+                                    FileOutputStream output = new FileOutputStream(mFileTemp,false);
+
+                                    try {
+                                        byte[] buffer = new byte[64*1024];
+                                        int bytesRead = 0;
+                                        while ((bytesRead = input.read(buffer, 0, buffer.length)) >= 0) {
+                                            output.write(buffer, 0, bytesRead);
+                                        }
+                                    } finally {
+                                        output.close();
+                                    }
+                                    input.close();
+                                }catch (FileNotFoundException e){
+                                    //error
+                                }catch (IOException e){
+                                    e.printStackTrace();
+                                }
+                            }
+                        });threadimg.start();
+                    }
+                }else {
+
+                }
+
+                //SI EL NUMERO DE IMAGENES DE MENU PARA EL RESTAURANTE NO ES CERO ENTONCES TRAE LAS IMAGENES Y LAS GUARDA
+                if(imgnummenu >0){
+                    for(int j = 0; j< imgnummenu; j++){
+                        final int index = j;
+                        threadimg = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    URL url = new URL ( getString(R.string.server)+empresar+"/Menu"+index+".jpg");
+                                    InputStream input = url.openStream();
+                                    File mFileTemp = new File(contextWrapper.getFilesDir() + File.separator
+                                            + empresar
+                                            , "Menu"
+                                            + index
+                                            + ".jpg");
+                                    mFileTemp.getParentFile().mkdirs();
+                                    FileOutputStream output = new FileOutputStream(mFileTemp,false);
+
+                                    try {
+                                        byte[] buffer = new byte[64*1024];
+                                        int bytesRead = 0;
+                                        while ((bytesRead = input.read(buffer, 0, buffer.length)) >= 0) {
+                                            output.write(buffer, 0, bytesRead);
+                                        }
+                                    } finally {
+                                        output.close();
+                                    }
+                                    input.close();
+                                }catch (FileNotFoundException e){
+                                    //error
+                                }catch (IOException e){
+                                    e.printStackTrace();
+                                }
+                            }
+                        });threadimg.start();
+                    }
+                }else{
+                    //renderizar pantalla no se encontraron imagenes...
+                    System.out.println("no está entrando");
+                }
 
                 button.setEnabled(true);
                 button.setBackgroundColor(Color.parseColor("#FFFFFF"));
@@ -212,6 +287,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), Second_activity.class);
                 intent.putExtra("empresa", empresa);
+                intent.putExtra("imgnummenu", imgnummenu);
+                intent.putExtra("imgnumtips", imgnumtips);
+                intent.putExtra("admin", AdminName);
                 v.getContext().startActivity(intent);
             }
         });

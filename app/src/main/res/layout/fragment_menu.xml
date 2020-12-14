@@ -1,4 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.synnapps.carouselview.CarouselView
+        android:id="@+id/verticalMenu"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:indicatorMarginVertical="5dp"
+        app:fillColor="@color/colorPrimary"
+        app:pageColor="#00000000"
+        app:radius="4dp"
+        app:slideInterval="10000"
+        app:strokeColor="#FF777777"
+        app:strokeWidth="1dp"/>
+    <!--
+    <ImageView
+        android:id="@+id/verticalTip"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"/>-->
+</RelativeLayout>
+<!--<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -13,7 +40,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@android:color/white"
         android:scaleType="fitXY"
-        android:adjustViewBounds="true"/>
+        android:adjustViewBounds="true"/>-->
     <!--
     <androidx.core.widget.ContentLoadingProgressBar
         android:id="@+id/loading"
@@ -24,4 +51,4 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />-->
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+<!--</androidx.constraintlayout.widget.ConstraintLayout>-->

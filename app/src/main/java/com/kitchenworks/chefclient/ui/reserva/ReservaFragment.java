@@ -220,7 +220,7 @@ public class ReservaFragment extends Fragment {
                 }
             };
 
-            ss.setSpan(clickableSpan1,193,215, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ss.setSpan(clickableSpan1,193,216, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
             politicatext.setText(ss);
             politicatext.setMovementMethod(LinkMovementMethod.getInstance());
@@ -507,7 +507,61 @@ public class ReservaFragment extends Fragment {
                     final String direccionstr = direccion2;
                     final String observacionestr = observaciones.getText().toString();
 
-                    if(tipomenu.equals("Alterno")){
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                URL url = new URL ( getString(R.string.server)+"chef/reserva/save/"+empresaget+diastr);
+                                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                                conn.setDoOutput(true);
+                                conn.setRequestMethod("POST");
+                                conn.setRequestProperty("Content-Type", "application/json");
+
+                                String input = "{\"empresa\":\""+ empresasend +"\",\"fecha\":\"" + fecha + "\",\"hora\":\"" + hora + "\",\"nombre\":\"" + nombrestr + "\"" +
+                                        ",\"celular\":\""+celularstr+"\",\"correo\":\""+emailstr+"\",\"cargo\":\""+cargostr+"\",\"tipomenu\":\""+ tipomenu + "\"" +
+                                        ",\"dia\":\""+diastr+"\",\"entrega\":\""+entrega+"\",\"horaentrega\":\""+horaensitio+"\","+
+                                        "\"observaciones\":\""+observacionestr+"\"}";
+
+                                OutputStream os = conn.getOutputStream();
+                                os.write(input.getBytes());
+                                os.flush();
+
+                                if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                                    ReservaFragment.this.getActivity().runOnUiThread(new Runnable() {
+                                        public void run() {
+                                            new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
+                                                    .setTitle("Lo Sentimos.")
+                                                    .setMessage("Algo ocurrio al realizar la reserva, verifica tu conexion a internet " +
+                                                            "o intentalo mas tarde.")
+                                                    .setPositiveButton("Ok", null)
+                                                    .show();
+                                        }
+                                    });
+                                }else{
+                                    ReservaFragment.this.getActivity().runOnUiThread(new Runnable() {
+                                        public void run() {
+                                            new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
+                                                    .setTitle("Reserva exitosa!")
+                                                    .setPositiveButton("Ok", null)
+                                                    .show();
+                                        }
+                                    });
+                                }
+
+                                conn.disconnect();
+
+                            } catch (MalformedURLException e) {
+
+                                e.printStackTrace();
+
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                    thread.start();
+
+                    /*if(tipomenu.equals("Alterno")){
                         Thread threadget = new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -758,7 +812,7 @@ public class ReservaFragment extends Fragment {
                         });
 
                         thread.start();
-                    }
+                    }*/
                 }
             });
         }else{
