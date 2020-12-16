@@ -34,7 +34,11 @@ public class ComentaFragment extends Fragment {
         empresa = activity.getEmpresa();
 
         comentaViewModel = ViewModelProviders.of(this).get(ComentaViewModel.class);
-        View root = inflater.inflate(R.layout.fragment_comenta, container, false);
+        final View root = inflater.inflate(R.layout.fragment_comenta, container, false);
+
+        root.findViewById(R.id.loadingPanel).setVisibility(View.GONE);
+        root.findViewById(R.id.imageView).setVisibility(View.GONE);
+        root.findViewById(R.id.textView2).setVisibility(View.GONE);
 
         final RatingBar mRatingBar = (RatingBar) root.findViewById(R.id.ratingBar);
         final TextView mRatingScale = (TextView) root.findViewById(R.id.tvRatingScale);
@@ -46,12 +50,12 @@ public class ComentaFragment extends Fragment {
         Button mSendFeedback = (Button) root.findViewById(R.id.btnSubmit);
 
 
-        mRatingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+        /*mRatingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
             public void onRatingChanged(RatingBar ratingBar, float v, boolean b) {
 
             }
-        });
+        });*/
 
         mRatingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
@@ -74,7 +78,7 @@ public class ComentaFragment extends Fragment {
                         mRatingScale.setText("Excelente");
                         break;
                     default:
-                        mRatingScale.setText("");
+                        mRatingScale.setText("Muy Mal");
                 }
             }
         });
@@ -86,6 +90,10 @@ public class ComentaFragment extends Fragment {
                     //Toast.makeText(ComentaFragment.this.getActivity(), "Please fill in feedback text box", Toast.LENGTH_LONG).show();
                     //mFeedback.setText("");
                 //}
+                root.findViewById(R.id.scrollView).setVisibility(View.GONE);
+                root.findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
+                root.findViewById(R.id.imageView).setVisibility(View.VISIBLE);
+                root.findViewById(R.id.textView2).setVisibility(View.VISIBLE);
                 Thread thread = new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -103,7 +111,6 @@ public class ComentaFragment extends Fragment {
                             String input = "{\"empresa\":\""+empresa+"\",\"estrellas\":" + mRatingBar.getRating() + ",\"comentario\":\"" + feed + "\",\"nombre\":\"" +
                                            nombrestr + "\",\"celular\":\""+ celularstr + "\",\"correo\":\"" + emailstr + "\"}";
 
-                            System.out.println("input: "+input);
                             OutputStream os = conn.getOutputStream();
                             os.write(input.getBytes());
                             os.flush();
@@ -118,6 +125,15 @@ public class ComentaFragment extends Fragment {
                                                 .setTitle("Gracias por sus comentarios!")
                                                 .setPositiveButton("Ok", null)
                                                 .show();
+                                        root.findViewById(R.id.loadingPanel).setVisibility(View.GONE);
+                                        root.findViewById(R.id.imageView).setVisibility(View.GONE);
+                                        root.findViewById(R.id.textView2).setVisibility(View.GONE);
+                                        mFeedback.setText("");
+                                        nombre.setText("");
+                                        celular.setText("");
+                                        email.setText("");
+                                        mRatingBar.setRating(5);
+                                        root.findViewById(R.id.scrollView).setVisibility(View.VISIBLE);
                                     }
                                 });
                             }
@@ -130,9 +146,6 @@ public class ComentaFragment extends Fragment {
                     }
                 });
                 thread.start();
-                while(thread.isAlive());
-                mFeedback.setText("");
-                mRatingBar.setRating(0);
             }
         });
 

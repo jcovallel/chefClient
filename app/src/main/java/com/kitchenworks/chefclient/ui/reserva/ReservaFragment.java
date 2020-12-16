@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.asynclayoutinflater.view.AsyncLayoutInflater;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.google.android.material.textfield.TextInputLayout;
@@ -71,7 +72,7 @@ public class ReservaFragment extends Fragment {
         empresaget = activity.getEmpresa().replaceAll(" ", "%20");
         empresasend = activity.getEmpresa();
 
-        View root = inflater.inflate(R.layout.fragment_reserva, container, false);
+        final View root = inflater.inflate(R.layout.fragment_reserva, container, false);
 
         /*AsyncLayoutInflater asyncLayoutInflater = new AsyncLayoutInflater(getContext());
         asyncLayoutInflater.inflate(R.layout.fragment_reserva, container, new AsyncLayoutInflater.OnInflateFinishedListener() {
@@ -92,6 +93,8 @@ public class ReservaFragment extends Fragment {
         scrollView.setVisibility(View.GONE);
         imageView.setVisibility(View.GONE);
         textView.setVisibility(View.GONE);
+        root.findViewById(R.id.loadingPanel).setVisibility(View.GONE);
+        root.findViewById(R.id.textView2).setVisibility(View.GONE);
 
         Thread threadone;
         final StringBuffer responsef = new StringBuffer();
@@ -630,7 +633,7 @@ public class ReservaFragment extends Fragment {
             });
 
             btnEnviar.setOnClickListener(new View.OnClickListener() {
-                @Override
+                //@Override
                 public void onClick(View v) {
                     Boolean error=false;
                     final String nombrestr = nombre.getText().toString();
@@ -718,6 +721,10 @@ public class ReservaFragment extends Fragment {
                     final String observacionestr = observaciones.getText().toString();
 
                     if(!error){
+                        root.findViewById(R.id.scrollView).setVisibility(View.GONE);
+                        root.findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
+                        root.findViewById(R.id.imageView).setVisibility(View.VISIBLE);
+                        root.findViewById(R.id.textView2).setVisibility(View.VISIBLE);
                         Thread thread = new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -755,6 +762,24 @@ public class ReservaFragment extends Fragment {
                                                         .setTitle("Reserva exitosa!")
                                                         .setPositiveButton("Ok", null)
                                                         .show();
+                                                root.findViewById(R.id.loadingPanel).setVisibility(View.GONE);
+                                                root.findViewById(R.id.imageView).setVisibility(View.GONE);
+                                                root.findViewById(R.id.textView2).setVisibility(View.GONE);
+                                                nombre.setText("");
+                                                celular.setText("");
+                                                email.setText("");
+                                                cargo.setText("");
+                                                editTextFilledExposedDropdown.setText("");
+                                                editTextFilledExposedDropdown2.setText("");
+                                                editTextFilledExposedDropdown3.setText("");
+                                                editTextFilledExposedDropdown4.setText("");
+                                                menuContainer.setVisibility(View.GONE);
+                                                horaContainer.setVisibility(View.GONE);
+                                                dirContainer.setVisibility(View.GONE);
+                                                entregaContainer.setVisibility(View.GONE);
+                                                observaciones.setText("");
+                                                btnEnviar.setEnabled(false);
+                                                root.findViewById(R.id.scrollView).setVisibility(View.VISIBLE);
                                             }
                                         });
                                     }
@@ -772,259 +797,6 @@ public class ReservaFragment extends Fragment {
                         });
                         thread.start();
                     }
-
-                    /*if(tipomenu.equals("Alterno")){
-                        Thread threadget = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try{
-                                    URL obj = new URL ( getString(R.string.server)+"chef/disponibilidad/"+empresaget+"/"+diastr);
-                                    HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-                                    con.setRequestMethod("GET");
-                                    int responseCode = con.getResponseCode();
-                                    if (responseCode == HttpURLConnection.HTTP_OK) { // success
-                                        BufferedReader in = new BufferedReader(new InputStreamReader(
-                                                con.getInputStream()));
-                                        String inputLine;
-                                        final StringBuffer response = new StringBuffer();
-
-                                        while ((inputLine = in.readLine()) != null) {
-                                            response.append(inputLine);
-                                        }
-                                        in.close();
-
-                                        //PETICIONES
-                                        if(!(response.toString().equalsIgnoreCase("0"))){
-                                            Thread thread = new Thread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    try {
-                                                        URL url = new URL ( getString(R.string.server)+"chef/reserva/save/"+empresaget+diastr);
-                                                        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                                                        conn.setDoOutput(true);
-                                                        conn.setRequestMethod("POST");
-                                                        conn.setRequestProperty("Content-Type", "application/json");
-
-                                                        boolean lunes = false;
-                                                        boolean martes = false;
-                                                        boolean miercoles = false;
-                                                        boolean jueves = false;
-                                                        boolean viernes = false;
-
-                                                        switch (diastr){
-                                                            case "Lunes":{
-                                                                lunes = true;
-                                                            }
-                                                            break;
-                                                            case "Martes":{
-                                                                martes = true;
-                                                            }
-                                                            break;
-                                                            case "Miercoles":{
-                                                                miercoles = true;
-                                                            }
-                                                            break;
-                                                            case "Jueves":{
-                                                                jueves = true;
-                                                            }
-                                                            break;
-                                                            case "Viernes":{
-                                                                viernes = true;
-                                                            }
-                                                            break;
-                                                        }
-
-                                                        String input = "{\"empresa\":\""+ empresasend +"\",\"fecha\":\"" + fecha + "\",\"hora\":\"" + hora + "\",\"nombre\":\"" + nombrestr + "\"" +
-                                                                ",\"celular\":\""+celularstr+"\",\"correo\":\""+emailstr+"\",\"cargo\":\""+cargostr+"\",\"tipomenu\":\""+ tipomenu + "\"" +
-                                                                ",\"lunes\":\""+lunes+"\",\"martes\":\""+martes+"\",\"miercoles\":\""+miercoles+"\",\"jueves\":\""+jueves+"\",\"viernes\":\""+
-                                                                viernes+"\",\"entrega\":\""+entrega+"\",\"horaentrega\":\""+horaensitio+"\",\"direccion\":\""+direccionstr+"\","+
-                                                                "\"observaciones\":\""+observacionestr+"\"}";
-
-                                                        OutputStream os = conn.getOutputStream();
-                                                        os.write(input.getBytes());
-                                                        os.flush();
-
-                                                        if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                                                            ReservaFragment.this.getActivity().runOnUiThread(new Runnable() {
-                                                                public void run() {
-                                                                    new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
-                                                                            .setTitle("Lo Sentimos.")
-                                                                            .setMessage("Algo ocurrio al realizar la reserva, verifica tu conexion a internet " +
-                                                                                    "o intentalo mas tarde.")
-                                                                            .setPositiveButton("Ok", null)
-                                                                            .show();
-                                                                }
-                                                            });
-                                                        }else{
-                                                            Thread thread3 = new Thread(new Runnable() {
-                                                                @Override
-                                                                public void run() {
-                                                                    int newdispoval = Integer.parseInt(response.toString()) -1;
-
-                                                                    try{
-                                                                        URL url2 = new URL ( getString(R.string.server)+"chef/disponibilidad/"+empresaget);
-                                                                        HttpURLConnection httpCon = (HttpURLConnection) url2.openConnection();
-                                                                        httpCon.setDoOutput(true);
-                                                                        httpCon.setRequestMethod("PUT");
-                                                                        httpCon.setRequestProperty("Content-Type", "application/json");
-                                                                        OutputStreamWriter osw = new OutputStreamWriter(httpCon.getOutputStream());
-                                                                        osw.write(String.format("{\"empresa\": \""+ empresasend + "\", \""+diastr+"\": "+newdispoval+"}"));
-                                                                        osw.flush();
-                                                                        osw.close();
-                                                                        httpCon.getInputStream();
-                                                                    }catch (MalformedURLException e){
-                                                                        e.printStackTrace();
-                                                                    }catch (IOException e){
-                                                                        e.printStackTrace();
-                                                                    }
-                                                                }
-                                                            });thread3.start();
-
-                                                            ReservaFragment.this.getActivity().runOnUiThread(new Runnable() {
-                                                                public void run() {
-                                                                    new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
-                                                                            .setTitle("Reserva exitosa!")
-                                                                            .setPositiveButton("Ok", null)
-                                                                            .show();
-                                                                }
-                                                            });
-                                                        }
-
-                                                        conn.disconnect();
-
-                                                    } catch (MalformedURLException e) {
-
-                                                        e.printStackTrace();
-
-                                                    } catch (IOException e) {
-
-                                                        e.printStackTrace();
-
-                                                    }
-                                                }
-                                            });
-
-                                            thread.start();
-                                        }else {
-                                            ReservaFragment.this.getActivity().runOnUiThread(new Runnable() {
-                                                public void run() {
-                                                    //Toast.makeText(ReservaFragment.this.getActivity(), "No hay reservas para ese dia!", Toast.LENGTH_LONG).show();
-                                                    new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
-                                                            .setTitle("Lo Sentimos.")
-                                                            .setMessage("No se encontro disponibilidad para el tipo de menú selecccionado, intente con otro tipo " +
-                                                                    "o intente mas tarde.")
-                                                            .setPositiveButton("Ok", null)
-                                                            .show();
-                                                }
-                                            });
-                                        }
-
-                                    } else {
-                                        ReservaFragment.this.getActivity().runOnUiThread(new Runnable() {
-                                            public void run() {
-                                                new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
-                                                        .setTitle("Lo Sentimos.")
-                                                        .setMessage("Algo ocurrio al realizar la reserva, verifica tu conexion a internet " +
-                                                                "o intentalo mas tarde.")
-                                                        .setPositiveButton("Ok", null)
-                                                        .show();
-                                            }
-                                        });
-                                    }
-                                }catch (MalformedURLException e){
-                                    e.printStackTrace();
-                                }catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-                        threadget.start();
-                    }else{
-                        Thread thread = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    URL url = new URL ( getString(R.string.server)+"chef/reserva/save/"+empresaget+diastr);
-                                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                                    conn.setDoOutput(true);
-                                    conn.setRequestMethod("POST");
-                                    conn.setRequestProperty("Content-Type", "application/json");
-
-                                    boolean lunes = false;
-                                    boolean martes = false;
-                                    boolean miercoles = false;
-                                    boolean jueves = false;
-                                    boolean viernes = false;
-
-                                    switch (diastr){
-                                        case "Lunes":{
-                                            lunes = true;
-                                        }
-                                        break;
-                                        case "Martes":{
-                                            martes = true;
-                                        }
-                                        break;
-                                        case "Miercoles":{
-                                            miercoles = true;
-                                        }
-                                        break;
-                                        case "Jueves":{
-                                            jueves = true;
-                                        }
-                                        break;
-                                        case "Viernes":{
-                                            viernes = true;
-                                        }
-                                        break;
-                                    }
-
-                                    String input = "{\"empresa\":\""+ empresasend +"\",\"fecha\":\"" + fecha + "\",\"hora\":\"" + hora + "\",\"nombre\":\"" + nombrestr + "\"" +
-                                            ",\"celular\":\""+celularstr+"\",\"correo\":\""+emailstr+"\",\"cargo\":\""+cargostr+"\",\"tipomenu\":\""+ tipomenu + "\"" +
-                                            ",\"lunes\":\""+lunes+"\",\"martes\":\""+martes+"\",\"miercoles\":\""+miercoles+"\",\"jueves\":\""+jueves+"\",\"viernes\":\""+
-                                            viernes+"\",\"entrega\":\""+entrega+"\",\"horaentrega\":\""+horaensitio+"\",\"direccion\":\""+direccionstr+"\","+
-                                            "\"observaciones\":\""+observacionestr+"\"}";
-
-                                    OutputStream os = conn.getOutputStream();
-                                    os.write(input.getBytes());
-                                    os.flush();
-
-                                    if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                                        ReservaFragment.this.getActivity().runOnUiThread(new Runnable() {
-                                            public void run() {
-                                                new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
-                                                        .setTitle("Lo Sentimos.")
-                                                        .setMessage("Algo ocurrio al realizar la reserva, verifica tu conexion a internet " +
-                                                                "o intentalo mas tarde.")
-                                                        .setPositiveButton("Ok", null)
-                                                        .show();
-                                            }
-                                        });
-                                    }else{
-                                        ReservaFragment.this.getActivity().runOnUiThread(new Runnable() {
-                                            public void run() {
-                                                new MaterialAlertDialogBuilder(ReservaFragment.this.getActivity())
-                                                        .setTitle("Reserva exitosa!")
-                                                        .setPositiveButton("Ok", null)
-                                                        .show();
-                                            }
-                                        });
-                                    }
-
-                                    conn.disconnect();
-
-                                } catch (MalformedURLException e) {
-
-                                    e.printStackTrace();
-
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-
-                        thread.start();
-                    }*/
                 }
             });
         }else{

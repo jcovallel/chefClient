@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                //System.out.println("imgnummenu: "+imgnummenu+"imgnumtips: "+imgnumtips+"Admin: "+AdminName);
+                System.out.println("Datos de valor: imgnummenu: "+imgnummenu+"imgnumtips: "+imgnumtips+"Admin: "+AdminName);
                 final ContextWrapper contextWrapper = new ContextWrapper(getApplicationContext());
 
                 //SI EL NUMERO DE IMAGENES DE TIS PARA EL RESTAURANTE NO ES CERO ENTONCES TRAE LAS IMAGENES Y LAS GUARDA

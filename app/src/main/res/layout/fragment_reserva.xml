@@ -6,6 +6,20 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
+    <RelativeLayout
+        android:id="@+id/loadingPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/imageView"
+        android:gravity="center" >
+
+        <ProgressBar
+            android:theme="@style/ProgressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true" />
+    </RelativeLayout>
+
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="250dp"
@@ -26,6 +40,19 @@
         android:textAlignment="center"
         android:textColor="@color/colorPrimary"
         android:textSize="18dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imageView" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="276dp"
+        android:layout_height="wrap_content"
+        android:text="Realizando reserva..."
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimary"
+        android:textSize="18dp"
+        android:layout_marginTop="50dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/imageView" />
@@ -66,7 +93,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ems="15"
-                    android:hint="Nombre"
+                    android:hint="Nombre*"
                     android:inputType="textPersonName"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -82,7 +109,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ems="15"
-                    android:hint="Teléfono"
+                    android:hint="Teléfono*"
                     android:inputType="phone"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -98,7 +125,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ems="15"
-                    android:hint="E-mail"
+                    android:hint="E-mail*"
                     android:inputType="textEmailAddress"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -114,7 +141,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ems="15"
-                    android:hint="Cargo"
+                    android:hint="Cargo*"
                     android:inputType="textCapSentences"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -125,7 +152,7 @@
                 android:layout_gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="Día">
+                android:hint="Día*">
 
                 <AutoCompleteTextView
                     android:id="@+id/filled_exposed_dropdown"
@@ -143,7 +170,7 @@
                 android:layout_gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="Tipo menú">
+                android:hint="Tipo menú*">
 
                 <AutoCompleteTextView
                     android:id="@+id/tmenu_dropdown"
@@ -161,7 +188,7 @@
                 android:layout_gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="Entrega">
+                android:hint="Entrega*">
 
                 <AutoCompleteTextView
                     android:id="@+id/filled_exposed_dropdown_entrega"
@@ -179,7 +206,7 @@
                 android:layout_gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="Hora">
+                android:hint="Hora*">
 
                 <AutoCompleteTextView
                     android:id="@+id/filled_exposed_dropdown_hora"
@@ -203,7 +230,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ems="15"
-                    android:hint="Dirección"
+                    android:hint="Dirección*"
                     android:inputType="textCapSentences"/>
             </com.google.android.material.textfield.TextInputLayout>
 
