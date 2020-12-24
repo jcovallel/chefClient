@@ -25,8 +25,7 @@ import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 
 public class MenuFragment extends Fragment {
 
-    private MenuViewModel menuViewModel;
-    private String empresasend,empresaget;
+    private String empresasend;
     private int imgnum;
     private Bitmap [] mImages;
 
@@ -34,15 +33,10 @@ public class MenuFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
 
         Second_activity activity = (Second_activity) getActivity();
-
-        empresaget = activity.getEmpresa().replaceAll(" ", "%20");
         empresasend = activity.getEmpresa();
         imgnum = activity.getImgnummenu();
 
-        menuViewModel = ViewModelProviders.of(this).get(MenuViewModel.class);
         View root = inflater.inflate(R.layout.fragment_menu, container, false);
-//==================================================================================================================
-
         ContextWrapper contextWrapper = new ContextWrapper(MenuFragment.this.getActivity());
         String empresar = StringUtils.stripAccents(empresasend).replaceAll(" ","-");
         BitmapFactory.Options bOptions = new BitmapFactory.Options();

@@ -594,7 +594,6 @@ public class ReservaFragment extends Fragment {
                         List<String> list = new ArrayList<String>();
                         try {
                             arr = new JSONArray(response4.toString());
-                            System.out.println("myarray"+arr.toString());
                             for(int i = 0; i < arr.length(); i++){
                                 String str = arr.getJSONObject(i).getString("horas");
                                 list.add(str);

@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
 
         while(threadnames.isAlive());
 
-        JSONArray arr = null;
+        JSONArray arr;
         List<String> list = new ArrayList<String>();
         try {
             arr = new JSONArray(response.toString());
@@ -193,12 +193,11 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                System.out.println("Datos de valor: imgnummenu: "+imgnummenu+"imgnumtips: "+imgnumtips+"Admin: "+AdminName);
                 final ContextWrapper contextWrapper = new ContextWrapper(getApplicationContext());
 
                 //SI EL NUMERO DE IMAGENES DE TIS PARA EL RESTAURANTE NO ES CERO ENTONCES TRAE LAS IMAGENES Y LAS GUARDA
                 if(imgnumtips >0){
-                    for(int j = 0; j< imgnummenu; j++){
+                    for(int j = 0; j< imgnumtips; j++){
                         final int index = j;
                         threadimg = new Thread(new Runnable() {
                             @Override

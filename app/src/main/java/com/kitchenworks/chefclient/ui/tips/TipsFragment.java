@@ -31,21 +31,16 @@ import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 
 public class TipsFragment extends Fragment {
 
-    private TipsViewModel tipsViewModel;
     private Bitmap [] mImages;
     private int imgnum;
     private String admin;
-    private boolean nodispo;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         Second_activity activity = (Second_activity) getActivity();
-        nodispo = activity.getDispo();
         admin = activity.getAdminName();
         imgnum = activity.getImgnumtips();
 
-        tipsViewModel =
-                ViewModelProviders.of(this).get(TipsViewModel.class);
         View root = inflater.inflate(R.layout.fragment_tips, container, false);
 
         ContextWrapper contextWrapper = new ContextWrapper(TipsFragment.this.getActivity());
@@ -55,16 +50,12 @@ public class TipsFragment extends Fragment {
 
         for(int k=0; k<imgnum; k++){
             String ruta = contextWrapper.getFilesDir() +"/"+admin+"/"+ "Menu"+k+".jpg";
-            System.out.println("esta es la ruta: "+ruta);
             Bitmap bitmap = BitmapFactory.decodeFile(ruta,bOptions);
             mImages[k]=bitmap;
         }
 
         CarouselView carouselView;
         if(TipsFragment.this.getActivity().getResources().getConfiguration().orientation == ORIENTATION_PORTRAIT){
-            //ImageView img = root.findViewById(R.id.verticalTip);
-            //img.setImageResource(mImages);
-            //img.setImageBitmap(getBitmapFromResources(getResources(), mImages));
             carouselView = root.findViewById(R.id.verticalTip);
             carouselView.setPageCount(imgnum);
             carouselView.setImageListener(new ImageListener() {
